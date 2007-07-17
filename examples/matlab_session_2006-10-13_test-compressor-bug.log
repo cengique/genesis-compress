@@ -1,0 +1,550 @@
+cengiz@laotse:~/work/cen_matlab> cd flac/
+cengiz@laotse:...rk/cen_matlab/flac> gdb ../unflacgenesis-x86_64
+GNU gdb 5.3.92
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "x86_64-suse-linux"...
+(gdb) run "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+
+Starting program: /djlab/private/cengiz/work/cen_matlab/unflacgenesis-x86_64 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Converting broken 64-bit header...
+Size of header: 96
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000002a956e4bae in _int_free () from /lib64/libc.so.6
+(gdb) (gdb) 
+(gdb) bt
+#0  0x0000002a956e4bae in _int_free () from /lib64/libc.so.6
+#1  0x0000002a956e38ea in free () from /lib64/libc.so.6
+#2  0x0000000000401340 in main (argc=5267392, argv=0x7fbfffef2a)
+    at unflacgenesis.c:178
+(gdb) list
+178	    free(read_data->data);
+179	    free(read_data->file_info);
+180	    free(read_data->chan_ranges);
+181	    free(read_data);
+182	  } else {
+183	    fprintf(stderr, "\n" COMMANDNAME ": error... see output above.\n");
+184	  }
+185	  
+186	  return;
+187	}
+(gdb) break unflacgenesis.c:178
+Breakpoint 1 at 0x401337: file unflacgenesis.c, line 178.
+(gdb) run "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+
+Starting program: /djlab/private/cengiz/work/cen_matlab/unflacgenesis-x86_64 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Converting broken 64-bit header...
+Size of header: 96
+
+Breakpoint 1, main (argc=5267392, argv=0x7fbfffef2a) at unflacgenesis.c:178
+178	    free(read_data->data);
+(gdb) info locals
+filename = 0x505fe0 "\204,?*"
+outfilename = 0x7fbfffef2a "a-l.bin"
+ext_start = 0x1 <Address 0x1 out of bounds>
+fdata = (float *) 0x505fe0
+read_data = (struct file_info_16bit_data *) 0x505fc0
+out_header = {label = "FMT1", '\0' <repeats 75 times>, start_time = 0, 
+  dt = 0.000100000005, num_chans = 1, datatype = 4}
+fp = (FILE *) 0x505fe0
+(gdb) info *read_data
+Undefined info command: "*read_data".  Try "help info".
+(gdb) help status
+Status inquiries.
+
+List of commands:
+
+info -- Generic command for showing things about the program being debugged
+macro -- Prefix for commands dealing with C preprocessor macros
+show -- Generic command for showing things about the debugger
+
+Type "help" followed by command name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) help info
+Generic command for showing things about the program being debugged.
+
+List of info subcommands:
+
+info address -- Describe where symbol SYM is stored
+info all-registers -- List of all registers and their contents
+info args -- Argument variables of current stack frame
+info breakpoints -- Status of user-settable breakpoints
+info catch -- Exceptions that can be caught in the current stack frame
+info classes -- All Objective-C classes
+info common -- Print out the values contained in a Fortran COMMON block
+info copying -- Conditions for redistributing copies of GDB
+info dcache -- Print information on the dcache performance
+info display -- Expressions to display when program stops
+info extensions -- All filename extensions associated with a source language
+info files -- Names of targets and files being debugged
+info float -- Print the status of the floating point unit
+info frame -- All about selected stack frame
+info functions -- All function names
+info handle -- What debugger does when program gets various signals
+info line -- Core addresses of the code for a source line
+info locals -- Local variables of current stack frame
+info macro -- Show the definition of MACRO
+info mem -- Memory region attributes
+info proc -- Show /proc process information about any running process
+info program -- Execution status of the program
+info registers -- List of integer registers and their contents
+info remote-process -- Query the remote system for process info
+info scope -- List the variables local to a scope
+info selectors -- All Objective-C selectors
+info set -- Show all GDB settings
+info sharedlibrary -- Status of loaded shared object libraries
+info signals -- What debugger does when program gets various signals
+info source -- Information about the current source file
+info sources -- Source files in the program
+info stack -- Backtrace of the stack
+info symbol -- Describe what symbol is at location ADDR
+info target -- Names of targets and files being debugged
+info terminal -- Print inferior's saved terminal status
+info threads -- IDs of currently known threads
+info tracepoints -- Status of tracepoints
+info types -- All type names
+info udot -- Print contents of kernel ``struct user'' for current child
+info variables -- All global and static variable names
+info vector -- Print the status of the vector unit
+info warranty -- Various kinds of warranty you do not have
+info watchpoints -- Synonym for ``info breakpoints''
+info win -- List of all displayed windows
+
+Type "help info" followed by info subcommand name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) locals
+Undefined command: "locals".  Try "help".
+(gdb) help
+List of classes of commands:
+
+aliases -- Aliases of other commands
+breakpoints -- Making program stop at certain points
+data -- Examining data
+files -- Specifying and examining files
+internals -- Maintenance commands
+obscure -- Obscure features
+running -- Running the program
+stack -- Examining the stack
+status -- Status inquiries
+support -- Support facilities
+tracepoints -- Tracing of program execution without stopping the program
+tui -- Text User Interface commands
+user-defined -- User-defined commands
+
+Type "help" followed by a class name for a list of commands in that class.
+Type "help" followed by command name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) help running
+Running the program.
+
+List of commands:
+
+advance -- Continue the program up to the given location (same form as args for break command)
+attach -- Attach to a process or file outside of GDB
+continue -- Continue program being debugged
+detach -- Detach a process or file previously attached
+disconnect -- Disconnect from a target
+finish -- Execute until selected stack frame returns
+handle -- Specify how to handle a signal
+info handle -- What debugger does when program gets various signals
+interrupt -- Interrupt the execution of the debugged program
+jump -- Continue program being debugged at specified line or address
+kill -- Kill execution of program being debugged
+next -- Step program
+nexti -- Step one instruction
+run -- Start debugged program
+set args -- Set argument list to give program being debugged when it is started
+set environment -- Set environment variable value to give the program
+set follow-fork-mode -- Set debugger response to a program call of fork or vfork
+set scheduler-locking -- Set mode for locking scheduler during execution
+set step-mode -- Set mode of the step operation
+show args -- Show argument list to give program being debugged when it is started
+show follow-fork-mode -- Show debugger response to a program call of fork or vfork
+show scheduler-locking -- Show mode for locking scheduler during execution
+show step-mode -- Show mode of the step operation
+signal -- Continue program giving it signal specified by the argument
+step -- Step program until it reaches a different source line
+stepi -- Step one instruction exactly
+target -- Connect to a target machine or process
+thread -- Use this command to switch between threads
+thread apply -- Apply a command to a list of threads
+apply all -- Apply a command to all threads
+tty -- Set terminal for future runs of program being debugged
+unset environment -- Cancel environment variable VAR for the program
+until -- Execute until the program reaches a source line greater than the current
+
+Type "help" followed by command name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) help aliases
+Aliases of other commands.
+
+List of commands:
+
+delete breakpoints -- Delete some breakpoints or auto-display expressions
+disable breakpoints -- Disable some breakpoints
+ni -- Step one instruction
+si -- Step one instruction exactly
+stepping -- Specify single-stepping behavior at a tracepoint
+tp -- Set a tracepoint at a specified line or function or address
+where -- Print backtrace of all stack frames
+ws -- Specify single-stepping behavior at a tracepoint
+
+Type "help" followed by command name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) help locals
+Undefined command: "locals".  Try "help".
+(gdb) help info locals
+Local variables of current stack frame.
+(gdb) help info
+Generic command for showing things about the program being debugged.
+
+List of info subcommands:
+
+info address -- Describe where symbol SYM is stored
+info all-registers -- List of all registers and their contents
+info args -- Argument variables of current stack frame
+info breakpoints -- Status of user-settable breakpoints
+info catch -- Exceptions that can be caught in the current stack frame
+info classes -- All Objective-C classes
+info common -- Print out the values contained in a Fortran COMMON block
+info copying -- Conditions for redistributing copies of GDB
+info dcache -- Print information on the dcache performance
+info display -- Expressions to display when program stops
+info extensions -- All filename extensions associated with a source language
+info files -- Names of targets and files being debugged
+info float -- Print the status of the floating point unit
+info frame -- All about selected stack frame
+info functions -- All function names
+info handle -- What debugger does when program gets various signals
+info line -- Core addresses of the code for a source line
+info locals -- Local variables of current stack frame
+info macro -- Show the definition of MACRO
+info mem -- Memory region attributes
+info proc -- Show /proc process information about any running process
+info program -- Execution status of the program
+info registers -- List of integer registers and their contents
+info remote-process -- Query the remote system for process info
+info scope -- List the variables local to a scope
+info selectors -- All Objective-C selectors
+info set -- Show all GDB settings
+info sharedlibrary -- Status of loaded shared object libraries
+info signals -- What debugger does when program gets various signals
+info source -- Information about the current source file
+info sources -- Source files in the program
+info stack -- Backtrace of the stack
+info symbol -- Describe what symbol is at location ADDR
+info target -- Names of targets and files being debugged
+info terminal -- Print inferior's saved terminal status
+info threads -- IDs of currently known threads
+info tracepoints -- Status of tracepoints
+info types -- All type names
+info udot -- Print contents of kernel ``struct user'' for current child
+info variables -- All global and static variable names
+info vector -- Print the status of the vector unit
+info warranty -- Various kinds of warranty you do not have
+info watchpoints -- Synonym for ``info breakpoints''
+info win -- List of all displayed windows
+
+Type "help info" followed by info subcommand name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) info program
+	Using the running image of child process 17125.
+Program stopped at 0x401337.
+It stopped at breakpoint 1.
+(gdb) help show
+Generic command for showing things about the debugger.
+
+List of show subcommands:
+
+show annotate -- Show annotation_level
+show archdebug -- Show architecture debugging
+show architecture -- Show the current target architecture
+show args -- Show argument list to give program being debugged when it is started
+show auto-solib-add -- Show autoloading of shared library symbols
+show backtrace -- Show backtrace specific variables
+show can-use-hw-watchpoints -- Show debugger's willingness to use watchpoint hardware
+show case-sensitive -- Show case sensitivity in name search
+show charset -- Show the host and target character sets
+show check -- Show the status of the type/range checker
+show coerce-float-to-double -- Show coercion of floats to doubles when calling functions
+show commands -- Show the history of commands you typed
+show complaints -- Show max number of complaints about incorrect symbols
+show confirm -- Show whether to confirm potentially dangerous operations
+show convenience -- Debugger convenience ("$foo") variables
+show copying -- Conditions for redistributing copies of GDB
+show cp-abi -- Show the ABI used for inspecting C++ objects
+show debug -- Generic command for showing gdb debugging flags
+show debug-file-directory -- Show the directory where separate debug symbols are searched for
+show debugvarobj -- Show varobj debugging
+show demangle-style -- Show the current C++ demangling style
+show directories -- Current search path for finding source files
+show disassembly-flavor -- Show the disassembly flavor
+show download-write-size -- Show the write size used when downloading a program
+show editing -- Show editing of command lines as they are typed
+show endian -- Show the current byte-order
+show environment -- The environment to give the program
+show eventdebug -- Show event debugging
+show exec-done-display -- Show notification of completion for asynchronous execution commands
+show follow-fork-mode -- Show debugger response to a program call of fork or vfork
+show gnutarget -- Show the current BFD target
+show height -- Show number of lines gdb thinks are in a page
+show history -- Generic command for showing command history parameters
+show host-charset -- Show the host character set
+show input-radix -- Show default input radix for entering numbers
+show language -- Show the current source language
+show listsize -- Show number of source lines gdb will list by default
+show logging -- Show logging options
+show max-user-call-depth -- Show the max call depth for user-defined commands
+show opaque-type-resolution -- Show resolution of opaque struct/class/union types (if set before loading symbols)
+show os -- Show operating system
+show osabi -- Show OS/ABI of target
+show output-radix -- Show default output radix for printing of values
+show overload-resolution -- Show overload resolution in evaluating C++ functions
+show pagination -- Show state of pagination
+show paths -- Current search path for finding object files
+show print -- Generic command for showing print settings
+show prompt -- Show gdb's prompt
+show prompt-escape-char -- Show escape character for formatting of gdb's prompt
+show radix -- Show the default input and output number radices
+show remote -- Remote protocol specific variables
+show remoteaddresssize -- Show the maximum size of the address (in bits) in a memory packet
+show remotebaud -- Show baud rate for remote serial I/O
+show remotebreak -- Show whether to send break if interrupted
+show remotecache -- Show cache use for remote targets
+show remotedebug -- Show debugging of remote protocol
+show remotedevice -- Show device for remote serial I/O
+show remotelogbase -- Show numerical base for remote session logging
+show remotelogfile -- Show filename for remote session recording
+show remotetimeout -- Show timeout limit to wait for target to respond
+show remotewritesize -- Show the maximum number of bytes per memory write packet (deprecated)
+show scheduler-locking -- Show mode for locking scheduler during execution
+show serial -- Show default serial/parallel port configuration
+show solib-absolute-prefix -- Show prefix for loading absolute shared library symbol files
+show solib-search-path -- Show the search path for loading non-absolute shared library symbol files
+show step-mode -- Show mode of the step operation
+show stop-on-solib-events -- Show stopping for shared library events
+show struct-convention -- Show the convention for returning small structs
+show symbol-reloading -- Show dynamic symbol table reloading multiple times in one run
+show target-charset -- Show the target character set
+show trust-readonly-sections -- Show mode for reading from readonly sections
+show tui -- TUI configuration variables
+show unwindonsignal -- Set unwinding of stack if a signal is received while in a call dummy
+show user -- Show definitions of user defined commands
+show values -- Elements of value history around item number IDX (or last ten)
+show verbose -- Show verbosity
+show version -- Show what version of GDB this is
+show warranty -- Various kinds of warranty you do not have
+show watchdog -- Show watchdog timer
+show width -- Show number of characters gdb thinks are in a line
+show write -- Show writing into executable and core files
+
+Type "help show" followed by show subcommand name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) help display
+Print value of expression EXP each time the program stops.
+/FMT may be used before EXP as in the "print" command.
+/FMT "i" or "s" or including a size-letter is allowed,
+as in the "x" command, and then EXP is used to get the address to examine
+and examining is done as in the "x" command.
+
+With no argument, display all currently requested auto-display expressions.
+Use "undisplay" to cancel display requests previously made.
+(gdb) help print
+Print value of expression EXP.
+Variables accessible are those of the lexical environment of the selected
+stack frame, plus all those whose scope is global or an entire file.
+
+$NUM gets previous value number NUM.  $ and $$ are the last two values.
+$$NUM refers to NUM'th value back from the last one.
+Names starting with $ refer to registers (with the values they would have
+if the program were to return to the stack frame now selected, restoring
+all registers saved by frames farther in) or else to debugger
+"convenience" variables (any such name not a known register).
+Use assignment expressions to give values to convenience variables.
+
+{TYPE}ADREXP refers to a datum of data type TYPE, located at address ADREXP.
+@ is a binary operator for treating consecutive data objects
+anywhere in memory as an array.  FOO@NUM gives an array whose first
+element is FOO, whose second element is stored in the space following
+where FOO is stored, etc.  FOO must be an expression whose value
+resides in memory.
+
+EXP may be preceded with /FMT, where FMT is a format letter
+but no count or size letter (see "x" command).
+(gdb) print read_data
+$1 = (struct file_info_16bit_data *) 0x505fc0
+(gdb) print *read_data
+$2 = {file_info = 0x505f90, chan_ranges = 0x506250, data = 0x506270}
+(gdb) step
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000002a956e4bae in _int_free () from /lib64/libc.so.6
+(gdb) break genesis16bit.h:172
+Breakpoint 2 at 0x400dd2: file genesis16bit.h, line 172.
+(gdb) stop
+(gdb) run "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+
+Starting program: /djlab/private/cengiz/work/cen_matlab/unflacgenesis-x86_64 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Converting broken 64-bit header...
+
+Breakpoint 2, unflac_file (
+    infilename=0x7fbfffee99 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac") at genesis16bit.h:173
+warning: Source file is more recent than executable.
+
+173					  sizeof(short int))) == NULL) {
+(gdb) step
+183				 sizeof(unsigned short), 1, tfp)) != 1) {
+(gdb) print data
+$3 = (short unsigned int *) 0x506270
+(gdb) cot
+Undefined command: "cot".  Try "help".
+(gdb) cont
+Continuing.
+Size of header: 96
+
+Breakpoint 1, main (argc=5267392, argv=0x7fbfffef2a) at unflacgenesis.c:178
+178	    free(read_data->data);
+(gdb) print *read_data
+$4 = {file_info = 0x505f90, chan_ranges = 0x506250, data = 0x506270}
+(gdb) cont
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000002a956e4bae in _int_free () from /lib64/libc.so.6
+(gdb) list
+173		      "while writing %lu bytes fwrite returned %d\n", 
+174		      outfilename, num_bytes, num_items);
+175	      return(-1);
+176	    }
+177	
+178	    free(read_data->data);
+179	    free(read_data->file_info);
+180	    free(read_data->chan_ranges);
+181	    free(read_data);
+182	  } else {
+(gdb) bt
+#0  0x0000002a956e4bae in _int_free () from /lib64/libc.so.6
+#1  0x0000002a956e38ea in free () from /lib64/libc.so.6
+#2  0x0000000000401340 in main (argc=5267392, argv=0x7fbfffef2a)
+    at unflacgenesis.c:178
+(gdb) run "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+
+Starting program: /djlab/private/cengiz/work/cen_matlab/unflacgenesis-x86_64 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Converting broken 64-bit header...
+
+Breakpoint 2, unflac_file (
+    infilename=0x7fbfffee99 "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac") at genesis16bit.h:173
+173					  sizeof(short int))) == NULL) {
+(gdb) print data
+$5 = (short unsigned int *) 0xe20b
+(gdb) help aliases
+Aliases of other commands.
+
+List of commands:
+
+delete breakpoints -- Delete some breakpoints or auto-display expressions
+disable breakpoints -- Disable some breakpoints
+ni -- Step one instruction
+si -- Step one instruction exactly
+stepping -- Specify single-stepping behavior at a tracepoint
+tp -- Set a tracepoint at a specified line or function or address
+where -- Print backtrace of all stack frames
+ws -- Specify single-stepping behavior at a tracepoint
+
+Type "help" followed by command name for full documentation.
+Command name abbreviations are allowed if unambiguous.
+(gdb) step
+183				 sizeof(unsigned short), 1, tfp)) != 1) {
+(gdb) print data
+$6 = (short unsigned int *) 0x506270
+(gdb) q
+The program is running.  Exit anyway? (y or n) y
+cengiz@laotse:...rk/cen_matlab/flac> gdb ../unflacgenesis
+GNU gdb 5.3.92
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "x86_64-suse-linux"...
+(gdb) run "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Starting program: /djlab/private/cengiz/work/cen_matlab/unflacgenesis "/home-la/cengiz/brute_force/2005-03-07-big-db/compdata/1000_NaF_0.1_NaP_15_Kv3_1_Kv2_1_Kv4f_0.01_KCNQ_17_SK_0.1_CaHVA_0.3_HCN_-100_pAcip.genflac" a-l.bin
+Warning:
+Cannot insert breakpoint -2.
+Error accessing memory address 0xbd10: Input/output error.
+
+(gdb) bt
+#0  0x00000000 in ?? ()
+(gdb) q
+The program is running.  Exit anyway? (y or n) y
+cengiz@laotse:...rk/cen_matlab/flac> /home/matlab-7.0.1/bin/matlab -nodesktop -nosplash
+
+                              < M A T L A B >
+                  Copyright 1984-2004 The MathWorks, Inc.
+                  Version 7.0.1.24704 (R14) Service Pack 1
+                             September 13, 2004
+
+ 
+  To get started, type one of these: helpwin, helpdesk, or demo.
+  For product information, visit www.mathworks.com.
+ 
+>> ls *.bin
+ls *.bin
+1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-32bit.bin
+1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-64bit.bin
+1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504.bin
+a2.bin
+a3-32bit.bin
+a3-64bit.bin
+a3.bin
+a.bin
+a-l-64.bin
+a-l.bin
+jre_multchan1.bin
+
+>> data1 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504.bin', 1);
+data1 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504.bin', 1);
+readgenesis: 1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504.bin, trace 1 of 1 (40000 points @ 10 kHz)
+>> size(data)
+size(data)
+??? Undefined function or variable 'data'.
+
+>> size(data1)
+size(data1)
+
+ans =
+
+       40000           1
+
+>> data2 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-32bit.bin', 1);
+data2 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-32bit.bin', 1);
+readgenesis: 1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-32bit.bin, trace 1 of 1 (40000 points @ 10 kHz)
+>> data3 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-64bit.bin', 1);
+data3 = readgenesis('1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-64bit.bin', 1);
+readgenesis: 1000_NaF_0.1_NaP_140_Kv3_105_Kv2_160_Kv4f_0_Ca_0_SK_0.25_HCN_1e-10_nA_030504-64bit.bin, trace 1 of 1 (40000 points @ 10 kHz)
+>> figure; plot([data1; data2; data3])
+figure; plot([data1; data2; data3])
+>> figure; plot([data1, data2, data3])
+figure; plot([data1, data2, data3])
+>> legend('1', '2', '3')
+legend('1', '2', '3')
+>> figure; plot([data1 + .01, data2 + 0.02, data3 + 0.03])
+figure; plot([data1 + .01, data2 + 0.02, data3 + 0.03])
+>> exit
+exit
+cengiz@laotse:...rk/cen_matlab/flac> 
+cengiz@laotse:...rk/cen_matlab/flac> exit
+exit
+
+Process shell finished
+WORKS

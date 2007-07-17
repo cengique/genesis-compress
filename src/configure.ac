@@ -1,0 +1,56 @@
+# Process this file with autoconf 2.0 or later to make a configure script.
+
+# gencompress autoconf file.
+# Cengiz Gunay 2007-07-17
+
+# Inherited some stuff from Alfonso Delgado-Reyes's scripts for Xicanal
+# <adelgado@biology.emory.edu>
+
+# Basic stuff
+AC_REVISION([$Revision: 1.2 $])
+AC_PREREQ(2.60)
+AC_INIT(gencompress, 1.0, [cengique@users.sf.net])
+AC_CONFIG_HEADER([config.h])
+AC_CONFIG_FILES([Makefile])
+
+# Check for programs
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_INCLUDES_DEFAULT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([fcntl.h float.h malloc.h stdlib.h string.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([strncasecmp strrchr])
+
+# Check for endianness
+AC_C_BIGENDIAN
+
+# ?? AM_INIT_AUTOMAKE
+
+# Check for FlAC
+AC_ARG_VAR(FLAC_EXEC, "Location of the FLAC executable.")
+AC_PATH_PROG(FLAC_EXEC, "flac", "N/A")
+
+# check for system
+AC_CANONICAL_BUILD
+AC_MSG_RESULT($build)
+
+# Platform-specific CC flags
+case $build in
+  i?86-*-*)	PLAT_CFLAGS=-m32 -malign-double; MEX_EXT=mexa64;;
+  x86_64-*-*)	PLAT_CFLAGS=; MEX_EXT=mexglx;;
+  *)		PLAT_CFLAGS=; AC_MSG_FALURE([System type not recognized, assuming x86_64 compatible]);;
+esac
+AC_SUBST(PLAT_CFLAGS)
+AC_SUBST(MEX_EXT)
+
+# AC_SUBST(PLAT_CFLAGS, "-DWIN32")
+# what about windows?
+
+
+AC_OUTPUT

@@ -1,0 +1,36 @@
+# gencompress autoconf file.
+# Cengiz Gunay 2007-07-17
+
+SHELL = /bin/sh
+
+.SUFFIXES:
+.SUFFIXES: .c
+
+TARGETS = flac2gen gen2flac
+HEADERS = convertgenesis16.bit.h
+
+CC=@CC@
+PLAT_CFLAGS=@PLAT_CFLAGS@
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA = ${INSTALL} -m 644
+
+all: $(TARGETS)
+
+flac2gen: flac2gen.c $(HEADERS)
+	$(CC) $(CFLAGS) $(PLAT_CFLAGS) -o flac2gen flac2gen.c
+
+
+install: $(TARGETS)
+	$(INSTALL_PROGRAM) flac2gen @bindir@/flac2gen
+
+uninstall: 
+	rm -f @bindir@/flac2gen
+
+clean: 
+	rm -f $(TARGETS)
+
+[-v -O] -DWIN32 
+	  To create 64-bit binary (on 64-bit architecture):
+		gcc -O -o flac2gen-x86_64 flac2gen.c
+	  To create 32-bit binary:
+		gcc -O -m32 -malign-double -o flac2gen flac2gen.c

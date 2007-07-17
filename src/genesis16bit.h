@@ -30,6 +30,7 @@
  * $Id: genesis16bit.h,v 1.6 2007/01/09 00:11:50 cengiz Exp $
  */
 #include <errno.h>
+#include "config.h"
 
 #define BUFSIZE 16384
 

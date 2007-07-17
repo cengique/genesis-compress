@@ -33,18 +33,18 @@ AC_C_BIGENDIAN
 # ?? AM_INIT_AUTOMAKE
 
 # Check for FlAC
-AC_ARG_VAR(FLAC_EXEC, "Location of the FLAC executable.")
-AC_PATH_PROG(FLAC_EXEC, "flac", "N/A")
+AC_ARG_VAR(FLAC_EXEC, [Location of the FLAC executable.])
+AC_PATH_PROG(FLAC_EXEC, flac, [N/A])
 
 # check for system
 AC_CANONICAL_BUILD
-AC_MSG_RESULT($build)
+AC_MSG_RESULT([System build type is: $build])
 
 # Platform-specific CC flags
 case $build in
-  i?86-*-*)	PLAT_CFLAGS=-m32 -malign-double; MEX_EXT=mexa64;;
+  i?86-*-*)	PLAT_CFLAGS="-malign-double"; MEX_EXT=mexa64;; #-m32 
   x86_64-*-*)	PLAT_CFLAGS=; MEX_EXT=mexglx;;
-  *)		PLAT_CFLAGS=; AC_MSG_FALURE([System type not recognized, assuming x86_64 compatible]);;
+  *)		PLAT_CFLAGS=; AC_MSG_FAILURE([System type not recognized, assuming x86_64 compatible]);;
 esac
 AC_SUBST(PLAT_CFLAGS)
 AC_SUBST(MEX_EXT)

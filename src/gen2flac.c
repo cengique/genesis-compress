@@ -124,6 +124,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
     template2[BUFSIZE] = "/tmp/genesis_comp_XXXXXX\0";
   int fd, fd2;
   char	commandbuffer[BUFSIZE];
+  char *extraopts;
 
   if ((fixed_raw = (struct fixed_point_16bit_format_v0_3 *)
        malloc(sizeof(struct fixed_point_16bit_format_v0_3))) == NULL) {
@@ -231,7 +232,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
   }
   fclose(tfp2);
 
-  char *extraopts = get_flac_version_opts();
+  extraopts = get_flac_version_opts();
 
   /* Call compressor to read from tmp file and write to tmp file2 */
   testlen = 

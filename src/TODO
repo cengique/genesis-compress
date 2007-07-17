@@ -1,3 +1,6 @@
 - add Mex-C file
 - get latest versions that have Matlab exec bugfix [patch changes since last tag!]
 - remove bin*/ 
+- use automake to generate Makefile.in
+- have a test procedure
+- usage for gen2flac

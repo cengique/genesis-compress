@@ -20,14 +20,7 @@ fi
 
 trap exit INT
 
-# Determine machine architecture
-machine=`uname -m`
-
-if [ "$machine" == "x86_64" ]; then
-	commandname=unflacgenesis-x86_64
-else
-	commandname=unflacgenesis
-fi
+commandname=flac2gen
 
 # DO in same directory if no destination specified
 if [ -z "$2" ]; then

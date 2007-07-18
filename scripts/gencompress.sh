@@ -20,14 +20,7 @@ fi
 
 trap exit INT
 
-# Determine machine architecture
-machine=`uname -m`
-
-if [ "$machine" == "x86_64" ]; then
-	commandname=convertgenesis16bit-x86_64
-else
-	commandname=convertgenesis16bit
-fi
+commandname=gen2flac
 
 # DO in same directory if no destination specified
 if [ -z "$2" ]; then

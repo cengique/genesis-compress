@@ -11,7 +11,7 @@
 # Basic stuff
 AC_REVISION([$Revision$])
 AC_PREREQ(2.60)
-AC_INIT(gencompress, 1.0, [cengique@users.sf.net], gencompress)
+AC_INIT(gencompress, 1.0b, [cengique@users.sf.net], gencompress)
 
 # Check for programs
 AC_PROG_CC
@@ -39,6 +39,7 @@ AC_DEFINE_UNQUOTED(FLAC_EXEC, $FLAC_EXEC, [Location of the FLAC executable])
 
 # check for system
 AC_CANONICAL_BUILD
+AC_SUBST(build_cpu)
 AC_MSG_RESULT([System build type is: $build])
 
 # Platform-specific CC flags

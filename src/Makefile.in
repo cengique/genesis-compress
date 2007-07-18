@@ -10,12 +10,15 @@ CC=@CC@
 CFLAGS=@CFLAGS@
 PLAT_CFLAGS=@PLAT_CFLAGS@
 MEX_EXT=@MEX_EXT@
+CPU=@build_cpu@
+
 
 TARGETS = flac2gen gen2flac
 MEX_TARGETS = readgenflac.$(MEX_EXT)
 HEADERS = genesis16bit.h
 
 TARNAME = @PACKAGE_TARNAME@
+VERSION = @PACKAGE_VERSION@
 
 all: $(TARGETS)
 
@@ -32,8 +35,8 @@ gen2flac: gen2flac.c $(HEADERS)
 
 mexdist: $(TARGETS) $(MEX_TARGETS)
 	mkdir $(TARNAME)
-	cp $(TARGETS) $(MEX_TARGETS) README.dist $(TARNAME)
-	tar -czf $(TARNAME).tar.gz $(TARNAME)
+	cp $(TARGETS) $(MEX_TARGETS) README.dist ../scripts/* $(TARNAME)
+	tar -czf $(TARNAME)-$(VERSION).$(CPU).tar.gz $(TARNAME)
 	rm -rf $(TARNAME)
 
 install: $(TARGETS)
@@ -43,4 +46,4 @@ uninstall:
 	cd @bindir@; rm -f $(TARGETS)
 
 clean: 
-	rm -f $(TARGETS) $(MEX_TARGETS)
+	rm -f $(TARGETS) readgenflac.mex* readgenflac.dll

@@ -35,7 +35,7 @@ TODO:
   - define tolerance parameter on maximal range
   - specify number of channels to take
 
-$Id: gen2flac.c,v 1.11 2007/01/09 00:11:50 cengiz Exp $
+$Id$
 */
 
 #include <stdio.h>

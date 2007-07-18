@@ -1,0 +1,12 @@
+Installation instructions:
+------------------------------
+
+Copy the gen2flac and flac2gen binaries in a directory that is
+system-wide accesible (that is, /usr/bin or /usr/local/bin). 
+
+Copy the readgenflac.* file to a directory within the matlab search
+path.
+
+-Cengiz Gunay
+<cengique@users.sf.net>
+2007/07/18

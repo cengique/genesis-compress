@@ -6,22 +6,35 @@ SHELL = /bin/sh
 .SUFFIXES:
 .SUFFIXES: .c
 
+CC=@CC@
+CFLAGS=@CFLAGS@
+PLAT_CFLAGS=@PLAT_CFLAGS@
+MEX_EXT=@MEX_EXT@
+
 TARGETS = flac2gen gen2flac
+MEX_TARGETS = readgenflac.$(MEX_EXT)
 HEADERS = genesis16bit.h
 
-CC=@CC@
-PLAT_CFLAGS=@PLAT_CFLAGS@
-#INSTALL = install
-#INSTALL_PROGRAM = ${INSTALL}
-#INSTALL_DATA = ${INSTALL} -m 644
+TARNAME = @PACKAGE_TARNAME@
 
 all: $(TARGETS)
+
+mex: $(MEX_TARGETS)
 
 flac2gen: flac2gen.c $(HEADERS)
 	$(CC) $(CFLAGS) $(PLAT_CFLAGS) -o flac2gen flac2gen.c
 
 gen2flac: gen2flac.c $(HEADERS)
 	$(CC) $(CFLAGS) $(PLAT_CFLAGS) -o gen2flac gen2flac.c
+
+%.$(MEX_EXT): %.c
+	mex -O CFLAGS='$$CFLAGS $(CFLAGS) $(PLAT_CFLAGS)' -output $* $<
+
+mexdist: $(TARGETS) $(MEX_TARGETS)
+	mkdir $(TARNAME)
+	cp $(TARGETS) $(MEX_TARGETS) README.dist $(TARNAME)
+	tar -czf $(TARNAME).tar.gz $(TARNAME)
+	rm -rf $(TARNAME)
 
 install: $(TARGETS)
 	$(INSTALL_PROGRAM) $(TARGETS) @bindir@/flac2gen
@@ -30,4 +43,4 @@ uninstall:
 	cd @bindir@; rm -f $(TARGETS)
 
 clean: 
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) $(MEX_TARGETS)

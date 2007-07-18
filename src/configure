@@ -1680,10 +1680,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-ac_config_headers="$ac_config_headers config.h"
-
-ac_config_files="$ac_config_files Makefile"
-
 
 # Check for programs
 ac_ext=c
@@ -4694,6 +4690,11 @@ fi
 
 
 
+cat >>confdefs.h <<_ACEOF
+#define FLAC_EXEC $FLAC_EXEC
+_ACEOF
+
+
 # check for system
 # Make sure we can run config.sub.
 $SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
@@ -4746,8 +4747,8 @@ echo "${ECHO_T}System build type is: $build" >&6; }
 
 # Platform-specific CC flags
 case $build in
-  i?86-*-*)	PLAT_CFLAGS="-malign-double"; MEX_EXT=mexa64;; #-m32
-  x86_64-*-*)	PLAT_CFLAGS=; MEX_EXT=mexglx;;
+  i?86-*-*)	PLAT_CFLAGS="-malign-double"; MEX_EXT=mexglx;; #-m32
+  x86_64-*-*)	PLAT_CFLAGS=; MEX_EXT=mexa64;;
   *)		PLAT_CFLAGS=; { { echo "$as_me:$LINENO: error: System type not recognized, assuming x86_64 compatible
 See \`config.log' for more details." >&5
 echo "$as_me: error: System type not recognized, assuming x86_64 compatible
@@ -4759,6 +4760,10 @@ esac
 
 # AC_SUBST(PLAT_CFLAGS, "-DWIN32")
 # what about windows?
+
+ac_config_headers="$ac_config_headers config.h"
+
+ac_config_files="$ac_config_files Makefile"
 
 
 cat >confcache <<\_ACEOF

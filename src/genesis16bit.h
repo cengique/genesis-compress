@@ -8,7 +8,7 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
-
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -27,13 +27,22 @@
  * Major=1: Use FLAC API and create a new format. Maybe embed in FLAC envelope? 
  *   	    Register 'NeSA' as signature at FlaC site.
  *
- * $Id: genesis16bit.h,v 1.6 2007/01/09 00:11:50 cengiz Exp $
+ * There is a weird problem running the uncompressor within matlab on 
+ * a AMD x86-64 machine with other processes running. The popen output
+ * and system() call gets interrupted and returns error. I hacked some
+ * code to ignore these things below.
+ *
+ * $Id$
  */
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "config.h"
 
 #define BUFSIZE 16384
 
+char msgbuf[BUFSIZE];
+ 
 #define NESA_MAGIC "NeSA"
 
 #ifdef __GLIBC__
@@ -96,20 +105,39 @@ char *get_flac_version_opts() {
   
   if ((retval = malloc(50)) == NULL) {
     fprintf(stderr, "\n" COMMANDNAME ": could not alloc memory.");
-    exit(-1);
+    return(NULL);
   }
   strcpy(retval, "\0");
 
   /* Call flac to get its version */
   if ((flacpipe = popen("flac -vs", "r")) == NULL) {
     fprintf(stderr, "\n" COMMANDNAME ": could not call Flac. Is it even installed?");
-    exit(-1);
+    return(NULL);
   }  
+
+  /*int wait_status;
+
+  if ((wait(&wait_status)) == -1) {
+    fprintf(stderr, "\n" COMMANDNAME ": Flac process not available?");
+    return(NULL);
+  }*/
 
   /* read output from pipe */
   if (fgets(versionstring, BUFSIZE, flacpipe) == NULL) {
-    fprintf(stderr, "\n" COMMANDNAME ": could not read output of Flac command.");
-    exit(-1);
+    if (errno == EINTR) { /* interrupted system call, trying again works! */
+      fprintf(stderr, "\n" COMMANDNAME ": Interrupted system call, trying again...\n");
+      if (fgets(versionstring, BUFSIZE, flacpipe) == NULL) {
+	sprintf(msgbuf, "\n" COMMANDNAME ": failed twice to read output "
+		"of Flac command (%d).", errno);
+	perror(msgbuf);
+	return(NULL);
+      }
+    } else {
+      sprintf(msgbuf, "\n" COMMANDNAME ": could not read output of Flac command (%d).",
+	      errno);
+      perror(msgbuf);
+      return(NULL);
+    }
   }
   pclose(flacpipe);
 
@@ -130,8 +158,12 @@ char *get_flac_version_opts() {
   return retval;
 }
 
+void sighandler(int sig_num) {
+  fprintf(stderr, "\n" COMMANDNAME ": Received signal #%d!!!\n", sig_num);
+}
+
 struct file_info_16bit_data *unflac_file(const char *infilename) {
-  int num_items, i, chan, testlen, filelen, chan8blocksize, offset, num_chans;
+  int num_items, i, chan, testlen, filelen, chan8blocksize, offset, num_chans, ret_val;
   FILE *fp, *tfp;
   unsigned short *data;
   struct fixed_point_16bit_format_v0_3 *file_info;
@@ -222,17 +254,35 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
     return(NULL);
   }
 
-  extraopts = get_flac_version_opts();
+  if ((extraopts = get_flac_version_opts()) == NULL) {
+    fprintf(stderr, "\n" COMMANDNAME ": could get Flac version\n");
+    free(chan_ranges);
+    free(file_info);
+    return(NULL);
+  }
 
   /* Call decompressor to read from infile and write to tempfile */
   testlen = sprintf(commandbuffer,
 		    "tail -c%d %s | flac -s -d --force-raw-format --endian=little "
 		    "--sign=unsigned %s - -o %s",
-		    filelen - file_info->header_len, infilename, extraopts, template); 
+		    filelen - file_info->header_len, infilename, 
+		    extraopts, template); 
   assert(testlen <= BUFSIZE);
-  if (system(commandbuffer) != 0) {
-    fprintf(stderr, "\n" COMMANDNAME ": could not execute decompressor command:\n%s\n",
+  ret_val = system(commandbuffer);
+
+  /*if (WIFSIGNALED(ret_val)) {
+    fprintf(stderr, "\n" COMMANDNAME ": system returned %d, child exited? (%d), "
+	    "child returned %d, "
+	    "and child caught a signal %d!\n", ret_val, WIFEXITED(ret_val), 
+	    WEXITSTATUS(ret_val), (char)WTERMSIG(ret_val)); 
+  }*/
+
+  if (ret_val == -1 && errno == ECHILD) {
+    fprintf(stderr, "\n" COMMANDNAME ": received \"no child processes\" error, ignoring.\n");
+  } else if (WEXITSTATUS(ret_val)) {
+    sprintf(msgbuf, "\n" COMMANDNAME ": could not execute decompressor command:\n%s\n",
 	    commandbuffer);
+    perror(msgbuf);
     free(chan_ranges);
     free(file_info);
     return(NULL);

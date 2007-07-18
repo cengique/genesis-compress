@@ -1,6 +1,14 @@
-- add Mex-C file
-- get latest versions that have Matlab exec bugfix [patch changes since last tag!]
+hi-prio:
++ get latest versions that have Matlab exec bugfix [patch changes since last tag!]
++ test programs [32 bit ok.]
+- add Mex-C file, add conf options to use it [lo-prio]
+- correct references in scripts
+- create 2 binary packages (linux i386/x86_64; no windows for now)
+- make simple web page (emphasize 16-bit truncation)
+lo-pio: 
+- replace flac with exec found from configure
 - remove bin*/ 
 - use automake to generate Makefile.in
-- have a test procedure
 - usage for gen2flac
+- make toplevel makefile, make dist section in makefile. include installing batch scripts
+- create program to auto-test compression, maybe put liit on error?

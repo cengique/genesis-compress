@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	  To create 32-bit binary:
 		gcc -O -m32 -malign-double -o flac2gen flac2gen.c
 
-  $Id: flac2gen.c,v 1.3 2007/01/09 00:11:51 cengiz Exp $
+  $Id$
 */
 
 #include <stdio.h>

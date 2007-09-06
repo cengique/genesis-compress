@@ -5,11 +5,12 @@ hi-prio:
 + remove bin*/ 
 + correct references in scripts
 + create 2 binary packages (linux i386/x86_64; no windows for now)
-- make simple web page (emphasize 16-bit truncation)
++ make simple web page (emphasize 16-bit truncation)
 lo-pio: 
++ replace flac with exec found from configure
 - add configure options to use mex file or not
-- replace flac with exec found from configure
 - use automake to generate Makefile.in
 - usage for gen2flac
 - make toplevel makefile, make dist section in makefile. include installing batch scripts
 - create program to auto-test compression, maybe put limit on allowed truncation error?
+- for v2.0: use API to access FLAC functions

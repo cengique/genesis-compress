@@ -35,8 +35,17 @@ gen2flac: gen2flac.c $(HEADERS)
 
 mexdist: $(TARGETS) $(MEX_TARGETS)
 	mkdir $(TARNAME)
-	cp $(TARGETS) $(MEX_TARGETS) README.dist ../scripts/* $(TARNAME)
+	cp $(TARGETS) $(MEX_TARGETS) README.dist ../scripts/*.sh $(TARNAME)
 	tar -czf $(TARNAME)-$(VERSION).$(CPU).tar.gz $(TARNAME)
+	rm -rf $(TARNAME)
+
+srcdist: 
+	mkdir -p $(TARNAME)/src
+	cp INSTALL COPYING TODO README.dist *.[ch] configure.ac configure \
+	   Makefile.in install-sh config.sub config.guess config.h.in $(TARNAME)/src
+	cp -a ../scripts $(TARNAME)
+	cp -a ../test $(TARNAME)
+	tar -cz --exclude=.svn -f $(TARNAME)-$(VERSION).src.tar.gz $(TARNAME)
 	rm -rf $(TARNAME)
 
 install: $(TARGETS)
@@ -46,4 +55,4 @@ uninstall:
 	cd @bindir@; rm -f $(TARGETS)
 
 clean: 
-	rm -f $(TARGETS) readgenflac.mex* readgenflac.dll
+	rm -f $(TARGETS) readgenflac.mex* readgenflac.dll *~

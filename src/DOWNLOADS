@@ -1,0 +1,36 @@
+Record of downloads or inquiries about Gencompress
+----------------------------------------
+Date: Mon, 13 Aug 2007 16:59:14 -0700
+From: Trevor Law <tlaw@uci.edu>
+To:  <cgunay@emory.edu>
+Subject: gencompress reply
+
+Hello,
+
+I am an undergraduate researcher at the University of California,
+Irvine.  I am using GENESIS for large network modeling and need
+extracellular potentials (meaning I need transmembrane current traces
+for all the cells).  Just last friday I projected the model was going
+to spit out 17GB/sec of data, and I was talking with my Professor
+today about what to do about it.  Funny coincidence.  Thanks for your
+work!
+
+-- compression ratios:
+
+The data is transmembrane currents (specifically the "Im" and "inject"
+fields of compartment objects are recorded).  My research advisor and
+I both believe "Im - inject"
+gives the correct value for this quantity.  The data is used for
+calculating extracellular potentials by approximating spherical
+compartments as point sources and cylindrical compartments as line
+sources.  I believe the compression ratio is about 1:8 or 9, although
+I only tested it on a small file.  I can give you a better number as
+soon as I make sure the MATLAB reader will work and make a big file.
+I can definitely tell you it is much preferable to genesis' ASCII
+output (effectively about 15*8 = 120bits per sample).
+
+--
+
+Trevor Law
+
+----------------------------------------

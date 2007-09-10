@@ -69,8 +69,8 @@ struct fixed_point_16bit_format_v0_2_64bit {
 struct fixed_point_16bit_format_v0_3 {
   /* This is the magic number at the beginning to detect versions */
   unsigned int		magic_number, version_major, version_minor;	
-  unsigned short 	header_len/* = sizeof(struct fixed_point_16bit_format)*/;
-  unsigned int		sample_rate;	/* In kHz */
+  unsigned short 	header_len/* = sizeof(struct fixed_point_16bit_format) TODO: must be more than ushort! */;
+  unsigned int		sample_rate;	/* In kHz (TODO: this should be a float value!) */ 
   unsigned int		num_samples;	/* Number of samples per channel */
   unsigned short	num_chans;	/* Number of interleaved channels */
   unsigned char 	is_compressed;  /* Is data in compressed form? */
@@ -85,7 +85,7 @@ struct genesis_disk_out_format {
   char label[80];
   float start_time, dt;
   /* datatype: SHORT = 2, INT = 3, FLOAT = 4 (*default), DOUBLE = 5 */
-  int num_chans, datatype;
+  unsigned int num_chans, datatype;
   /* Followed by  (3 * num_chans) floats and then data */
 };
 
@@ -163,7 +163,9 @@ void sighandler(int sig_num) {
 }
 
 struct file_info_16bit_data *unflac_file(const char *infilename) {
-  int num_items, i, chan, testlen, filelen, chan8blocksize, offset, num_chans, ret_val;
+  
+  unsigned int num_items, i, chan, testlen, filelen, chan8blocksize, num_chans;
+  int ret_val;
   FILE *fp, *tfp;
   unsigned short *data;
   struct fixed_point_16bit_format_v0_3 *file_info;
@@ -174,6 +176,7 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
   int fd;
   char commandbuffer[BUFSIZE];
   char *extraopts;
+  fpos_t filepos;	/* file position structure from stdio.h. supports 64 bit pointers. */
 
   if ((file_info = (struct fixed_point_16bit_format_v0_3 *)
        malloc(sizeof(struct fixed_point_16bit_format_v0_3))) == NULL) {
@@ -222,8 +225,9 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
     /*printf("size old: %d (%d), size new: %d, ", sizeof(*file_info_old),
 	   sizeof(file_info_old->num_samples), 
 	   sizeof(struct fixed_point_16bit_format_v0_3));
+    printf("header_len=%d, ", file_info->header_len);
     printf("sample_rate=%d, ", ((struct fixed_point_16bit_format_v0_3*)file_info)->sample_rate);
-    printf("num_chans=0x%hX, ", ((struct fixed_point_16bit_format_v0_3*)file_info)->num_chans);
+    printf("num_chans=%u, ", ((struct fixed_point_16bit_format_v0_3*)file_info)->num_chans);
     printf("num_samples=%d\n", ((struct fixed_point_16bit_format_v0_3*)file_info)->num_samples);*/
   }
 
@@ -243,7 +247,15 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
     }
 
   fseek(fp, 0L, SEEK_END);
-  filelen = ftell(fp);
+  /* filelen = ftell(fp); Cannot handle files >2GB */
+  if (fgetpos(fp, &filepos)) {
+    perror("\ngen2flac could not get the file size");
+    fclose(fp);
+    free(chan_ranges);
+    free(file_info);
+    return(NULL);
+  }
+  filelen = filepos.__pos;
   fclose(fp);
 
   /* Create temp file for uncompressing */
@@ -265,7 +277,7 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
   testlen = sprintf(commandbuffer,
 		    "tail -c%d %s | flac -s -d --force-raw-format --endian=little "
 		    "--sign=unsigned %s - -o %s",
-		    filelen - file_info->header_len, infilename, 
+		    filelen - sizeof(*file_info) - file_info->num_chans * sizeof(*chan_ranges), infilename, 
 		    extraopts, template); 
   assert(testlen <= BUFSIZE);
   ret_val = system(commandbuffer);

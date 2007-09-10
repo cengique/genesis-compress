@@ -54,7 +54,8 @@ $Id$
 #include <math.h>
 #include <assert.h>
 
-#define ADFBLOCK 12000
+/* Block size must not be less than number*/
+#define ADFBLOCK 256000
 #define TRUE 1
 
 #define GENFLAC_EXT ".genflac"
@@ -91,12 +92,12 @@ struct analog_format {
   float		factor;
   float		overlay_pos;
   float		overlay_val;
-  float		xmax;
-  float		xmin;
-  long		num_samples;
+  double	xmax;
+  double	xmin;
+  __uint64	num_samples;
   float		sample_rate;
   int		filled;
-  double	*fdata;
+  float		*fdata;
 };
 
 struct analog_format *raw = NULL;
@@ -174,6 +175,9 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
 	(raw->fdata[offset_i] - min_val[chan]) / (max_val[chan] - min_val[chan]) * 0xFFFFU;
     }
   }
+  
+  /* Done with fdata, release it. */
+  free(raw->fdata);
 
   /* Create file */
   if ((fp = fopen(outfilename, "wb")) == NULL) {
@@ -272,15 +276,17 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
 }
 
 int get_gendata(const char *infilename, const char *outfilename) {
-    int     	datatype, i, chan, offset, chan8blocksize;
-    int		num_chans, headersize, pci;
-    long	num_items, blockpos, readblock;
-    long 	fst_pt, lst_pt, dat_points, flength;
-    float   	pcf, fval, ftemp[ADFBLOCK], startti, tistep, xmax_read, gain;
-    double 	*min_val, *max_val;
+    int     	datatype, chan;
+    unsigned int num_chans, headersize, pci;
+    long	readblock;
+    __uint64 	i, fst_pt, lst_pt, dat_points, flength, chan8blocksize, offset, blockpos;
+    size_t 	num_items, mem_required;
+    float   	pcf, fval, ftemp[ADFBLOCK], startti, tistep/*, gain*/;
+    double 	xmax_read, *min_val, *max_val;
     char	headstr[256], titlebuffer[256];
     int 	plotno = 1;
     FILE	*fp;
+    fpos_t 	filepos;	/* file position structure from stdio.h. supports 64 bit pointers. */
     
     if ((fp = fopen(infilename, "rb")) == NULL) {
         fprintf(stderr, "\ngen2flac: could not open file '%s'\n", infilename);
@@ -299,14 +305,14 @@ int get_gendata(const char *infilename, const char *outfilename) {
     raw->factor   = 1;
     raw->offset   = 0.0;
     raw->xmin     = 0.0;
-    raw->xmax     = 100000.0;
+    /* raw->xmax     = 100000.0; ignore this limit for large files */
     raw->fdata    = NULL;
     raw->trace_no = plotno;
     raw->channel  = 1;
     raw->invert   = 0;
     raw->sample_rate = 1;
     
-    gain = raw->gain;
+    /* gain = raw->gain; unnecessary calculations */
 
 #if !defined(__APPLE__)      || \
      !defined(__BIG_ENDIAN__) || \
@@ -373,9 +379,20 @@ int get_gendata(const char *infilename, const char *outfilename) {
     }
     
     fseek(fp, 0L, SEEK_END);
-    flength = ftell(fp);
+    /* flength = ftell(fp); Cannot handle files >2GB */
+    if (fgetpos(fp, &filepos)) {
+      perror("\ngen2flac could not get the file size");
+      free(raw);
+      fclose(fp);
+      return(-1);
+    }
+    flength = filepos.__pos;
+
+    /* fprintf(stderr, "File length: %lu\n", flength); */
     dat_points = (flength - headersize) / (num_chans * sizeof(float));
-    xmax_read = (float)(dat_points) * tistep * 1000.0;
+    /* fprintf(stderr, "dat_points: %lu\n", dat_points); */
+    xmax_read = (double) (dat_points * tistep * 1000.0);
+    /* fprintf(stderr, "xmax: %g\n", xmax_read); */
     
     if (raw->xmin >= xmax_read) {
         fprintf(stderr,
@@ -384,23 +401,27 @@ int get_gendata(const char *infilename, const char *outfilename) {
         fclose(fp);
         return(-1);
     }
-    if (raw->xmax > xmax_read) {
-        raw->xmax = xmax_read;
-    }
+
+    /* Ignore xmax setting */
+    /*if (raw->xmax > xmax_read) {*/
+    raw->xmax = xmax_read;
+    /*}*/
     
-    fst_pt = (long) (raw->xmin * raw->sample_rate);
-    lst_pt = (long) (raw->xmax * raw->sample_rate);
+    fst_pt =  ((__uint64)raw->xmin * raw->sample_rate);
+    lst_pt =  dat_points; /* ((__uint64)raw->xmax * raw->sample_rate); */
+    /* fprintf(stderr, "fst_pt: %lu, lst_pt: %lu\n", fst_pt, lst_pt); */
     
     raw->num_samples = lst_pt - fst_pt;
-    
-    raw->fdata = (double *)malloc(raw->num_samples*num_chans*sizeof(double));
+
+    mem_required = raw->num_samples*num_chans*sizeof(float);
+    raw->fdata = (float *)malloc(mem_required);
 
     min_val = (double *)malloc(num_chans*sizeof(double));
     max_val = (double *)malloc(num_chans*sizeof(double));
     
     if (raw->fdata == NULL) {
-        fprintf(stderr, "\ngen2flac: could not malloc data array of %d bytes.\n",
-		raw->num_samples*num_chans*sizeof(double));
+        fprintf(stderr, "\ngen2flac: could not malloc data array of %lu bytes.\n",
+		mem_required);
         free(raw);
         fclose(fp);
         return(-1);
@@ -416,22 +437,20 @@ int get_gendata(const char *infilename, const char *outfilename) {
     fseek(fp, (plotno-1) * sizeof(float), SEEK_CUR);
     fseek(fp, fst_pt * (num_chans * sizeof(float)), SEEK_CUR);
     
-    num_items = -1;
-    blockpos = 0;
-    
+    blockpos = 0;    
     readblock = ADFBLOCK - (ADFBLOCK % num_chans);
     
     chan8blocksize = 8 * raw->num_samples;
     /* fill data pointer, convert to double */
     
+    num_items = fread(ftemp, sizeof(float), readblock, fp);
+    /* fprintf(stderr, "readblock: %lu, 1st num_items: %lu\n", readblock, num_items); */
     for (i = 0; i < raw->num_samples; i++) {
         if (blockpos >= num_items) {
-            if ((num_items = fread(ftemp, sizeof(float), readblock, fp)) == 0)
-            {
-                break;
-            } else {
-                blockpos = 0;
-            }
+	  if ((num_items = fread(ftemp, sizeof(float), readblock, fp)) == 0)
+	      break;
+            else 
+	      blockpos = 0;
         }
 	for (chan = 0; chan < num_chans; chan++) {
 	  /* Until the last less than 8 channels, use 8 channel encoding.
@@ -441,9 +460,9 @@ int get_gendata(const char *infilename, const char *outfilename) {
     defined(__BIG_ENDIAN__) || \
     defined(WORDS_BIGENDIAN)
 	  wswap((char *)&fval, (char *)&ftemp[blockpos + chan]);
-	  raw->fdata[offset] = (double)(fval / gain);
+	  raw->fdata[offset] = fval;
 #else
-	  raw->fdata[offset] = (double)(ftemp[blockpos + chan] / gain);
+	  raw->fdata[offset] = ftemp[blockpos + chan];
 #endif
 
 	  /* Search for min and max */

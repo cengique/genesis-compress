@@ -194,5 +194,5 @@ int main(int argc, const char **argv) {
     fprintf(stderr, "\n" COMMANDNAME ": error... see output above.\n");
   }
   
-  return;
+  return 0;
 }

@@ -1,6 +1,8 @@
 /*
-Quantizes floating-point data to 16-bit fixed-point from file 
-created by Genesis diskio object.
+Quantizes floating-point data to 16-bit fixed-point from file created
+by Genesis diskio object. Then uses the FLAC utility
+(http://flac.sf.net) to losslessly compress the data.
+
 Copyright (c) 2005 Cengiz Gunay <cengique@users.sf.net> 2005-03-14
 
 This library is free software; you can redistribute it and/or
@@ -237,7 +239,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
   /* Call compressor to read from tmp file and write to tmp file2 */
   testlen = 
     sprintf(commandbuffer,
-	    "flac -s --force-raw-format --channels=%d --bps=16 --sample-rate=44100 "
+	    "flac -s -f --force-raw-format --channels=%d --bps=16 --sample-rate=44100 "
 	    "--endian=little --sign=unsigned -8 %s %s -o %s", min(num_chans, 8),
 	    extraopts, template, template2);
   assert(testlen <= BUFSIZE);

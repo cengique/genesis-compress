@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #else
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 #include <string.h>
 #include <fcntl.h>
@@ -118,9 +120,16 @@ int main(int argc, const char **argv) {
   struct file_info_16bit_data *read_data;
   struct genesis_disk_out_format out_header = { "FMT1\0", 0.0f, 0.0f, 1, 4};
   FILE *fp;
-  
+  struct stat myfilestat;
+
   if (argc < 2) print_usage_exit();
   filename = argv[1];
+
+  // check if exists
+  if (stat(filename, &myfilestat) != 0) {
+    fprintf(stderr, "Error: Cannot stat file %s.\n", filename);
+    return -1;
+  }
 
   if (argc < 3) {
     /* Arg 2 is optional filename, o/w replace w/ .bin extension */

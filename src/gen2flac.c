@@ -46,6 +46,8 @@ $Id$
 #include <io.h>
 #else
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 #include <string.h>
 #include <fcntl.h>
@@ -468,13 +470,20 @@ int main(int argc, const char **argv) {
   const char *infilename;
   char *outfilename;
   int trace;
+  struct stat myfilestat;
 
   if (argc < 2) {
     fprintf(stderr, "Usage: gen2flac infilename [outfilename]\n");
     return -1;
   }
 
+  // check if exists
   infilename = argv[1];
+  if (stat(infilename, &myfilestat) != 0) {
+    fprintf(stderr, "Error: Cannot stat file %s.\n", infilename);
+    return -1;
+  }
+
   if (argc > 2) 
     outfilename = (char*) argv[2];
   else {

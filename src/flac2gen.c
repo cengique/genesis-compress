@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #else
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 #include <string.h>
 #include <fcntl.h>
@@ -76,7 +78,7 @@ float *scramble_data_for_genesis(struct file_info_16bit_data *unflac_data) {
 
   if ((fdata = (float *)malloc(file_info->num_samples * file_info->num_chans *
 			       sizeof(float))) == NULL) {
-    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %d bytes.\n",
+    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %lu bytes.\n",
 	    file_info->num_samples * file_info->num_chans * sizeof(float));
     free(chan_ranges);
     free(file_info);
@@ -119,9 +121,16 @@ int main(int argc, const char **argv) {
   struct file_info_16bit_data *read_data;
   struct genesis_disk_out_format out_header = { "FMT1\0", 0.0f, 0.0f, 1, 4};
   FILE *fp;
-  
+  struct stat myfilestat;
+
   if (argc < 2) print_usage_exit();
   filename = argv[1];
+
+  // check if exists
+  if (stat(filename, &myfilestat) != 0) {
+    fprintf(stderr, "Error: Cannot stat file %s.\n", filename);
+    return -1;
+  }
 
   if (argc < 3) {
     /* Arg 2 is optional filename, o/w replace w/ .bin extension */
@@ -152,7 +161,7 @@ int main(int argc, const char **argv) {
       return(-1);
     }
 
-    /* printf("Size of header: %d\n", sizeof(out_header)); */
+    /* printf("Size of header: %lu\n", sizeof(out_header));*/
 
     /* Write header */
     if ((num_items = fwrite(&out_header, sizeof(out_header), 1, fp)) != 1) {
@@ -200,5 +209,5 @@ int main(int argc, const char **argv) {
   }
 
   
-  return;
+  return 0;
 }

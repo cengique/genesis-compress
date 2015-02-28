@@ -1,4 +1,6 @@
 
+addpath('../src/');
+
 % load and plot files
 
 data1 = readgenbin('genesis-single-chan.bin');

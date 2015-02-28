@@ -21,8 +21,8 @@ all: $(TARGETS)
 	matlab -nodesktop -r 'genflactest'
 
 # Generic rules
-%.genflac: %.bin
-	$(GEN2FLAC) $< $@
+#%.genflac: %.bin
+#	$(GEN2FLAC) $< $@
 
 %.bin: %.genflac
 	$(FLAC2GEN) $< $@

@@ -1,6 +1,8 @@
 /*
-Quantizes floating-point data to 16-bit fixed-point from file 
-created by Genesis diskio object.
+Quantizes floating-point data to 16-bit fixed-point from file created
+by Genesis diskio object. Then uses the FLAC utility
+(http://flac.sf.net) to losslessly compress the data.
+
 Copyright (c) 2005 Cengiz Gunay <cengique@users.sf.net> 2005-03-14
 
 This library is free software; you can redistribute it and/or
@@ -44,6 +46,8 @@ $Id$
 #include <io.h>
 #else
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 #include <string.h>
 #include <fcntl.h>
@@ -152,7 +156,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
 
   if ((data = (short int *)malloc(raw->num_samples * num_chans * sizeof(short int))) 
       == NULL) {
-    fprintf(stderr, "\ngen2flac: could not malloc data array of %d bytes.\n",
+    fprintf(stderr, "\ngen2flac: could not malloc data array of %lu bytes.\n",
 	    raw->num_samples * num_chans * sizeof(short int));
     free(fixed_raw);
     return(-1);
@@ -321,8 +325,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
 #endif
 
     fseek(fp, 0L, SEEK_SET);
-    fread(headstr, sizeof(char), 80, fp);
-    fread(&pcf, sizeof(float), 1, fp);
+    assert(fread(headstr, sizeof(char), 80, fp) > 0);
+    assert(fread(&pcf, sizeof(float), 1, fp) > 0);
     
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -332,7 +336,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
 	startti = pcf;
 #endif
     
-    fread(&pcf, sizeof(float), 1, fp);
+	assert(fread(&pcf, sizeof(float), 1, fp) > 0);
     
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -344,7 +348,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     raw->sample_rate = 0.001 / tistep;
     
-    fread(&pci, sizeof(int), 1, fp);
+    assert(fread(&pci, sizeof(int), 1, fp) > 0);
 	
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -356,7 +360,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
 
 	/*fprintf(stderr, "\ngen2flac: num. chans = %d\n", num_chans);*/
 	
-    fread(&pci, sizeof(int), 1, fp);
+	assert(fread(&pci, sizeof(int), 1, fp) > 0);
 
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -393,7 +397,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     /* fprintf(stderr, "dat_points: %lu\n", dat_points); */
     xmax_read = (double) (dat_points * tistep * 1000.0);
     /* fprintf(stderr, "xmax: %g\n", xmax_read); */
-    
+ 
     if (raw->xmin >= xmax_read) {
         fprintf(stderr,
                 "\ngen2flac: no data available above given xmin\n");
@@ -403,9 +407,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     }
 
     /* Ignore xmax setting */
-    /*if (raw->xmax > xmax_read) {*/
     raw->xmax = xmax_read;
-    /*}*/
     
     fst_pt =  ((__uint64)raw->xmin * raw->sample_rate);
     lst_pt =  dat_points; /* ((__uint64)raw->xmax * raw->sample_rate); */
@@ -429,9 +431,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     raw->filled    = 1;
     raw->file_type = 3;
-    sprintf(titlebuffer, "Plot %i from %s; read from %f to %f msec",
+    fprintf(stderr, "Channel %i from %s; reading from %f to %f msec\n",
             plotno, infilename, raw->xmin, raw->xmax);
-    strcpy(raw->title, titlebuffer);
     
     fseek(fp, headersize, SEEK_SET);
     fseek(fp, (plotno-1) * sizeof(float), SEEK_CUR);
@@ -475,8 +476,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     fclose(fp);
 
-    fprintf(stderr, "gen2flac: Read %s, all of %i channels (%d samples @ %g kHz)\n",
-            infilename, num_chans, i, raw->sample_rate);
+    fprintf(stderr, "gen2flac: Read %s, all of %i channels (%u samples out of %lu @ %g kHz)\n",
+            infilename, num_chans, i, raw->num_samples, raw->sample_rate);
 
     return scaledata(outfilename, min_val, max_val, num_chans);
 }
@@ -485,13 +486,20 @@ int main(int argc, const char **argv) {
   const char *infilename;
   char *outfilename;
   int trace;
+  struct stat myfilestat;
 
   if (argc < 2) {
     fprintf(stderr, "Usage: gen2flac infilename [outfilename]\n");
     return -1;
   }
 
+  // check if exists
   infilename = argv[1];
+  if (stat(infilename, &myfilestat) != 0) {
+    fprintf(stderr, "Error: Cannot stat file %s.\n", infilename);
+    return -1;
+  }
+
   if (argc > 2) 
     outfilename = (char*) argv[2];
   else {

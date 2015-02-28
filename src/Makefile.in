@@ -33,6 +33,8 @@ flac2gen: flac2gen.c $(HEADERS)
 gen2flac: gen2flac.c $(HEADERS)
 	$(CC) $(CFLAGS) $(PLAT_CFLAGS) -o gen2flac gen2flac.c
 
+readgenflac.$(MEX_EXT): $(HEADERS)
+
 %.$(MEX_EXT): %.c
 	mex -O CFLAGS='$$CFLAGS $(CFLAGS) $(PLAT_CFLAGS)' -output $* $<
 

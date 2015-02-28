@@ -11,7 +11,7 @@
 # Basic stuff
 AC_REVISION([$Revision$])
 AC_PREREQ(2.60)
-AC_INIT(gencompress, 1.0b, [cengique@users.sf.net], gencompress)
+AC_INIT(gencompress, 1.1b, [cengique@users.sf.net], gencompress)
 
 # Check for programs
 AC_PROG_CC

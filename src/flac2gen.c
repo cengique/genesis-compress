@@ -115,7 +115,8 @@ void print_usage_exit() {
 
 int main(int argc, const char **argv) {
   char		*filename, *outfilename, *ext_start;
-  int 		num_items, num_bytes;
+  size_t	num_items;
+  __uint64 	num_bytes;
   float 	*fdata;
   struct file_info_16bit_data *read_data;
   struct genesis_disk_out_format out_header = { "FMT1\0", 0.0f, 0.0f, 1, 4};
@@ -160,7 +161,7 @@ int main(int argc, const char **argv) {
       return(-1);
     }
 
-    printf("Size of header: %lu\n", sizeof(out_header));
+    /* printf("Size of header: %lu\n", sizeof(out_header));*/
 
     /* Write header */
     if ((num_items = fwrite(&out_header, sizeof(out_header), 1, fp)) != 1) {
@@ -190,10 +191,14 @@ int main(int argc, const char **argv) {
       sizeof(float);
     if ((num_items = fwrite(fdata, num_bytes, 1, fp)) != 1) {
       fprintf(stderr, "\n" COMMANDNAME ": could not write data to file '%s', "
-	      "while writing %u bytes fwrite returned %d\n", 
+	      "while writing %lu bytes fwrite returned %lu\n", 
 	      outfilename, num_bytes, num_items);
       return(-1);
     }
+
+    fprintf(stderr, COMMANDNAME ": Wrote %s, all of %i channels (%d samples @ %u kHz)\n",
+            outfilename, read_data->file_info->num_chans, read_data->file_info->num_samples, 
+	    read_data->file_info->sample_rate);
 
     free(read_data->data);
     free(read_data->file_info);
@@ -202,6 +207,7 @@ int main(int argc, const char **argv) {
   } else {
     fprintf(stderr, "\n" COMMANDNAME ": error... see output above.\n");
   }
+
   
   return 0;
 }

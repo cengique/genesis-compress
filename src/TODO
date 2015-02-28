@@ -8,10 +8,10 @@ hi-prio:
 + make simple web page (emphasize 16-bit truncation)
 lo-pio: 
 + replace flac with exec found from configure
-- convert to git and publish on github
++ convert to git and publish on github
+- make toplevel makefile, make dist section in makefile. include installing batch scripts
 - add configure options to use mex file or not
 - use automake to generate Makefile.in
 - usage for gen2flac
-- make toplevel makefile, make dist section in makefile. include installing batch scripts
 - create program to auto-test compression, maybe put limit on allowed truncation error?
 - for v2.0: use API to access FLAC functions

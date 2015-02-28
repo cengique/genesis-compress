@@ -1,0 +1,33 @@
+Installation instructions:
+------------------------------
+
+Requirements:
+
+Free lossless audio codec (FLAC) version >1.0 is required (http://flac.sourceforge.net/).
+You only need the binaries and not the development package at this point.
+
+Installation:
+
+Copy the gen2flac and flac2gen binaries in a directory that is
+system-wide accesible (that is, /usr/bin or /usr/local/bin). 
+
+Copy the readgenflac.* file to a directory within the matlab search
+path to enable the Matlab reader. Type "readgenflac" in Matlab to see 
+the usage instructions.
+
+Usage:
+
+Compress/uncompress single file:
+gen2flac genesis-file.bin [output-file.genflac]
+flac2gen comp-genesis-file.genflac [uncomp-output-file.bin]
+
+Batch operation:
+gencompress.sh: compress many files
+genuncompress.sh: uncompress many files
+
+For more info run the above commands without arguments.
+Also see the website at http://userwww.service.emory.edu/~cgunay/pandora/.
+
+-Cengiz Gunay
+<cengique@users.sf.net>
+2007/07/18

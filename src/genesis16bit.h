@@ -297,7 +297,7 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
 
   if ((data = (short int *)malloc(file_info->num_samples * file_info->num_chans *
 				  sizeof(short int))) == NULL) {
-    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %d bytes.\n",
+    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %lu bytes.\n",
 	    file_info->num_samples * file_info->num_chans * sizeof(short int));
     free(chan_ranges);
     free(file_info);

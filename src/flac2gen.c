@@ -78,7 +78,7 @@ float *scramble_data_for_genesis(struct file_info_16bit_data *unflac_data) {
 
   if ((fdata = (float *)malloc(file_info->num_samples * file_info->num_chans *
 			       sizeof(float))) == NULL) {
-    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %d bytes.\n",
+    fprintf(stderr, "\n" COMMANDNAME ": could not malloc data array of %lu bytes.\n",
 	    file_info->num_samples * file_info->num_chans * sizeof(float));
     free(chan_ranges);
     free(file_info);
@@ -160,7 +160,7 @@ int main(int argc, const char **argv) {
       return(-1);
     }
 
-    printf("Size of header: %d\n", sizeof(out_header));
+    printf("Size of header: %lu\n", sizeof(out_header));
 
     /* Write header */
     if ((num_items = fwrite(&out_header, sizeof(out_header), 1, fp)) != 1) {
@@ -190,7 +190,7 @@ int main(int argc, const char **argv) {
       sizeof(float);
     if ((num_items = fwrite(fdata, num_bytes, 1, fp)) != 1) {
       fprintf(stderr, "\n" COMMANDNAME ": could not write data to file '%s', "
-	      "while writing %lu bytes fwrite returned %d\n", 
+	      "while writing %u bytes fwrite returned %d\n", 
 	      outfilename, num_bytes, num_items);
       return(-1);
     }

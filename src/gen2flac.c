@@ -155,7 +155,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
 
   if ((data = (short int *)malloc(raw->num_samples * num_chans * sizeof(short int))) 
       == NULL) {
-    fprintf(stderr, "\ngen2flac: could not malloc data array of %d bytes.\n",
+    fprintf(stderr, "\ngen2flac: could not malloc data array of %lu bytes.\n",
 	    raw->num_samples * num_chans * sizeof(short int));
     free(fixed_raw);
     return(-1);
@@ -319,8 +319,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
 #endif
 
     fseek(fp, 0L, SEEK_SET);
-    fread(headstr, sizeof(char), 80, fp);
-    fread(&pcf, sizeof(float), 1, fp);
+    assert(fread(headstr, sizeof(char), 80, fp) > 0);
+    assert(fread(&pcf, sizeof(float), 1, fp) > 0);
     
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -330,7 +330,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
 	startti = pcf;
 #endif
     
-    fread(&pcf, sizeof(float), 1, fp);
+	assert(fread(&pcf, sizeof(float), 1, fp) > 0);
     
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -342,7 +342,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     raw->sample_rate = 0.001 / tistep;
     
-    fread(&pci, sizeof(int), 1, fp);
+    assert(fread(&pci, sizeof(int), 1, fp) > 0);
 	
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -354,7 +354,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
 
 	/*fprintf(stderr, "\ngen2flac: num. chans = %d\n", num_chans);*/
 	
-    fread(&pci, sizeof(int), 1, fp);
+	assert(fread(&pci, sizeof(int), 1, fp) > 0);
 
 #if defined(__APPLE__)      || \
     defined(__BIG_ENDIAN__) || \
@@ -380,7 +380,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     flength = ftell(fp);
     dat_points = (flength - headersize) / (num_chans * sizeof(float));
     xmax_read = (float)(dat_points) * tistep * 1000.0;
-    
+ 
     if (raw->xmin >= xmax_read) {
         fprintf(stderr,
                 "\ngen2flac: no data available above given xmin\n");
@@ -388,9 +388,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
         fclose(fp);
         return(-1);
     }
-    if (raw->xmax > xmax_read) {
-        raw->xmax = xmax_read;
-    }
+    raw->xmax = xmax_read;
     
     fst_pt = (long) (raw->xmin * raw->sample_rate);
     lst_pt = (long) (raw->xmax * raw->sample_rate);
@@ -403,7 +401,7 @@ int get_gendata(const char *infilename, const char *outfilename) {
     max_val = (double *)malloc(num_chans*sizeof(double));
     
     if (raw->fdata == NULL) {
-        fprintf(stderr, "\ngen2flac: could not malloc data array of %d bytes.\n",
+        fprintf(stderr, "\ngen2flac: could not malloc data array of %lu bytes.\n",
 		raw->num_samples*num_chans*sizeof(double));
         free(raw);
         fclose(fp);
@@ -412,9 +410,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     raw->filled    = 1;
     raw->file_type = 3;
-    sprintf(titlebuffer, "Plot %i from %s; read from %f to %f msec",
+    fprintf(stderr, "Channel %i from %s; reading from %f to %f msec\n",
             plotno, infilename, raw->xmin, raw->xmax);
-    strcpy(raw->title, titlebuffer);
     
     fseek(fp, headersize, SEEK_SET);
     fseek(fp, (plotno-1) * sizeof(float), SEEK_CUR);
@@ -460,8 +457,8 @@ int get_gendata(const char *infilename, const char *outfilename) {
     
     fclose(fp);
 
-    fprintf(stderr, "gen2flac: Read %s, all of %i channels (%d samples @ %g kHz)\n",
-            infilename, num_chans, i, raw->sample_rate);
+    fprintf(stderr, "gen2flac: Read %s, all of %i channels (%u samples out of %lu @ %g kHz)\n",
+            infilename, num_chans, i, raw->num_samples, raw->sample_rate);
 
     return scaledata(outfilename, min_val, max_val, num_chans);
 }

@@ -275,7 +275,7 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
 
   /* Call decompressor to read from infile and write to tempfile */
   testlen = sprintf(commandbuffer,
-		    "tail -c%d %s | flac -s -d --force-raw-format --endian=little "
+		    "tail -c%d %s | flac -f -s -d --force-raw-format --endian=little "
 		    "--sign=unsigned %s - -o %s",
 		    filelen - sizeof(*file_info) - file_info->num_chans * sizeof(*chan_ranges), infilename, 
 		    extraopts, template); 

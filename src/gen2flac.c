@@ -168,7 +168,7 @@ int scaledata(const char *outfilename, const double *min_val, const double *max_
   for (chan = 0; chan < num_chans; chan++) {
     offset = chan / 8 * chan8blocksize + chan % 8;
 
-    /* printf("Chan %d: Min: %e, Max: %e\n", chan, min_val[chan], max_val[chan]);*/
+    /* printf("Chan %d: Min: %e, Max: %e\n", chan, min_val[chan], max_val[chan]); */
     chan_ranges[chan].range_low = min_val[chan];
     chan_ranges[chan].range_high = max_val[chan];
 
@@ -420,7 +420,13 @@ int get_gendata(const char *infilename, const char *outfilename) {
 
     min_val = (double *)malloc(num_chans*sizeof(double));
     max_val = (double *)malloc(num_chans*sizeof(double));
-    
+
+    /* initialize min and max */
+    for (chan = 0; chan < num_chans; chan++) {
+      min_val[chan] = INFINITY;
+      max_val[chan] = -INFINITY;
+    }
+
     if (raw->fdata == NULL) {
         fprintf(stderr, "\ngen2flac: could not malloc data array of %lu bytes.\n",
 		mem_required);

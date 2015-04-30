@@ -162,7 +162,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[0] = scramble_data_for_matlab(read_data);
     free(read_data);
   } else {
-    mexErrMsgTxt("\n" COMMANDNAME ": error... see output above");
+    mexErrMsgTxt(msgbuf);
   }
   
   mxFree(filename);

@@ -256,7 +256,7 @@ struct file_info_16bit_data *unflac_file(const char *infilename) {
   fseek(fp, 0L, SEEK_END);
   /* filelen = ftell(fp); Cannot handle files >2GB */
   if (fgetpos(fp, &filepos)) {
-    perror("\ngen2flac could not get the file size");
+    perror("\n" COMMANDNAME " could not get the file size");
     fclose(fp);
     free(chan_ranges);
     free(file_info);
